@@ -3,8 +3,8 @@ global:
   pattern: netapp-dr-starter-kit
   # OpenShift ingress domains: oc get ingress.config cluster -o jsonpath='{.spec.domain}'
   # Primary / DR — used for router-default.<domain> in Route53 unless overridden in values-hub.yaml.
-  clusterDomain: apps.cluster.example.com
-  drClusterDomain: apps.cluster.example.com
+  clusterDomain: apps.oa-trident-hub.aws.validatedpatterns.io
+  drClusterDomain: apps.oa-trident-spoke.aws.validatedpatterns.io
   options:
     useCSV: false
     syncPolicy: Automatic
@@ -26,7 +26,7 @@ tridentProtect:
 # Route53 DR Failover — domain auto-derived by crossplane-setup from cluster DNS
 drFailover:
   enabled: true
-  domain: "dr.example.com"
+  domain: "dr.aws.validatedpatterns.io"
   apps:
     - name: boutique
       routeName: frontend-dr

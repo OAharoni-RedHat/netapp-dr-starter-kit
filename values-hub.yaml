@@ -383,18 +383,24 @@ clusterGroup:
       acmlabels:
         - name: clusterGroup
           value: secondary
-
 # The hub cluster has the FSx ONTAP filesystem and S3 AppVault; these are not replicated to the
 # DR cluster but can be used as sources for replication to other clusters in the pattern.
 fsxOntap:
   enabled: true
-  region: "" # Provided by crossplane-setup
-  fileSystemName: "" # Provided by crossplane-setup
-  vpcId: "" # Provided by crossplane-setup
-  subnetIds: []
-  routeTableIds: []
-  preferredSubnetId: "" # Provided by crossplane-setup
-  allowedCidrs: []
+  region: "ca-central-1" # Provided by crossplane-setup
+  fileSystemName: "oa-trident-hub-ca-central-1-fsx" # Provided by crossplane-setup
+  vpcId: "vpc-0e1655e00abcf0c7c" # Provided by crossplane-setup
+  subnetIds:
+    - subnet-0f836733fa33c402a
+    - subnet-0be757f3f63a934d4
+  routeTableIds:
+    - rtb-07193e3a792545e29
+    - rtb-0a06f25b4b41eae32
+    - rtb-0b29e6e7d9530c44b
+  preferredSubnetId: "subnet-0f836733fa33c402a" # Provided by crossplane-setup
+  allowedCidrs:
+    - 10.0.0.0/16
+    - 10.0.0.0/16
   storageCapacity: 1024
   throughputCapacity: 1024
   storageType: SSD
@@ -402,42 +408,65 @@ fsxOntap:
   svmName: SVM1
   peer:
     enabled: true
-    region: "" # Provided by crossplane-setup
-    fileSystemName: "" # Provided by crossplane-setup
-    vpcId: "" # Provided by crossplane-setup
-    subnetIds: []
-    routeTableIds: []
-    preferredSubnetId: "" # Provided by crossplane-setup
-    allowedCidrs: []
+    region: "us-east-1" # Provided by crossplane-setup
+    fileSystemName: "oa-trident-spoke-us-east-1-fsx" # Provided by crossplane-setup
+    vpcId: "vpc-064793b12045c30cd" # Provided by crossplane-setup
+    subnetIds:
+      - subnet-0ed529021d60e2e9a
+      - subnet-0613552a52318807c
+    routeTableIds:
+      - rtb-0d975191f590ecfd2
+      - rtb-019d693da2648ab7c
+      - rtb-073cd0c5e139a0425
+      - rtb-035f69af7b8bd8c1f
+      - rtb-059a8daa880ff6436
+      - rtb-03d2aeb63cdbffa20
+    preferredSubnetId: "subnet-0ed529021d60e2e9a" # Provided by crossplane-setup
+    allowedCidrs:
+      - 10.0.0.0/16
+      - 10.0.0.0/16
     svmName: SVM2
 s3AppVault:
   enabled: true
   bucketName: "" # Matches .Values.tridentProtect.appVault.name in values-global.yaml; provided by crossplane-setup
-  region: "" # Provided by crossplane-setup
+  region: "us-west-1" # Provided by crossplane-setup
 endpointWatcher:
   enabled: true
   local:
-    fileSystemName: "" # Provided by crossplane-setup
-    region: "" # Provided by crossplane-setup
+    fileSystemName: "oa-trident-hub-ca-central-1-fsx" # Provided by crossplane-setup
+    region: "ca-central-1" # Provided by crossplane-setup
     svmName: SVM1
   peer:
-    fileSystemName: "" # Provided by crossplane-setup
-    region: "" # Provided by crossplane-setup
+    fileSystemName: "oa-trident-spoke-us-east-1-fsx" # Provided by crossplane-setup
+    region: "us-east-1" # Provided by crossplane-setup
     svmName: SVM2
 vpcPeering:
   enabled: true
   prod:
-    region: "" # Provided by crossplane-setup
-    vpcId: "" # Provided by crossplane-setup
-    vpcCidr: "" # Provided by crossplane-setup
-    clusterName: "" # Provided by crossplane-setup
-    routeTableIds: []
+    region: "ca-central-1" # Provided by crossplane-setup
+    vpcId: "vpc-0e1655e00abcf0c7c" # Provided by crossplane-setup
+    vpcCidr: "10.0.0.0/16" # Provided by crossplane-setup
+    clusterName: "oa-trident-hub" # Provided by crossplane-setup
+    routeTableIds:
+      - rtb-07193e3a792545e29
+      - rtb-0a06f25b4b41eae32
+      - rtb-0e5d907ef30a435c4
+      - rtb-03dd5b1374aa8e6df
+      - rtb-0b29e6e7d9530c44b
   dr:
-    region: "" # Provided by crossplane-setup
-    vpcId: "" # Provided by crossplane-setup
-    vpcCidr: "" # Provided by crossplane-setup
-    clusterName: "" # Provided by crossplane-setup
-    routeTableIds: []
+    region: "us-east-1" # Provided by crossplane-setup
+    vpcId: "vpc-064793b12045c30cd" # Provided by crossplane-setup
+    vpcCidr: "10.0.0.0/16" # Provided by crossplane-setup
+    clusterName: "oa-trident-spoke" # Provided by crossplane-setup
+    routeTableIds:
+      - rtb-0d975191f590ecfd2
+      - rtb-019d693da2648ab7c
+      - rtb-0273ccf363f864020
+      - rtb-0482672e266e51b6f
+      - rtb-073cd0c5e139a0425
+      - rtb-035f69af7b8bd8c1f
+      - rtb-059a8daa880ff6436
+      - rtb-03d2aeb63cdbffa20
 route53Failover:
   enabled: true
   perAppHealthChecks: false
@@ -446,11 +475,11 @@ route53Failover:
   # Omit secondary health check so DNS follows primary-down (AMR Failover) without
   # requiring a 2xx/3xx from the DR router on healthCheckPath. Set true to gate DR on probe success.
   attachSecondaryHealthCheck: false
-  domain: dr.example.com # Provided by crossplane-setup; auto-derived from cluster DNS if omitted
+  domain: dr.aws.validatedpatterns.io # Provided by crossplane-setup; auto-derived from cluster DNS if omitted
   # If false: set hostedZoneId to the Route53 zone ID for `domain` (see ansible dr_failover_hosted_zone_id or AWS console).
   # If true: Crossplane creates the zone; delegate NS at the parent registrar.
-  createHostedZone: false
-  hostedZoneId: "" # Provided by crossplane-setup or set to existing zone ID if createHostedZone is false
+  createHostedZone: False
+  hostedZoneId: "Z001281810MV5UN93UQKQ" # Provided by crossplane-setup or set to existing zone ID if createHostedZone is false
   # Router targets default to router-default.<domain> where templates now prefer:
   # global.localClusterDomain (primary) and global.drClusterDomain (secondary).
   # You can still override per environment with primaryIngressHostname/secondaryIngressHostname.
@@ -459,7 +488,7 @@ route53Failover:
   apps:
     - name: boutique
     - name: wordpress
-  region: us-west-1
+  region: ca-central-1
 # Hub: weighted Route53 from S3 (dr-dns-state-export on DR). Requires IAM on aws-provider creds.
 drDnsReconciler:
   enabled: true
@@ -468,8 +497,8 @@ drDnsReconciler:
   s3Bucket: trident-protect-bucket
   s3Region: us-west-1
   s3Key: dr-metadata/amr-dns-target.json
-  hostedZoneId: "" # Provided by crossplane-setup or set to existing zone ID if createHostedZone is false
-  domain: dr.example.com # Provided by crossplane-setup; auto-derived from cluster DNS if omitted
+  hostedZoneId: "Z001281810MV5UN93UQKQ" # Provided by crossplane-setup or set to existing zone ID if createHostedZone is false
+  domain: dr.aws.validatedpatterns.io # Provided by crossplane-setup; auto-derived from cluster DNS if omitted
   # PRIMARY_INGRESS/SECONDARY_INGRESS now default from:
   # global.localClusterDomain (preferred) + global.drClusterDomain.
   # You can override with primaryIngressHostname/secondaryIngressHostname if needed.

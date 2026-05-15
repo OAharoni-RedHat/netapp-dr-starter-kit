@@ -353,7 +353,6 @@ clusterGroup:
   # We can use self-referential variables because the chart calls the tpl function with these variables defined
   sharedValueFiles:
     - '/overrides/values-{{ $.Values.global.clusterPlatform }}.yaml'
-
 # FSX ONTAP and S3 AppVault are disabled by default on this cluster.
 fsxOntap:
   enabled: false
@@ -366,10 +365,10 @@ route53Failover:
 endpointWatcher:
   enabled: true
   local:
-    fileSystemName: "" # Provided by crossplane-setup
-    region: "" # Provided by crossplane-setup
-    svmName: "" # Provided by crossplane-setup
+    fileSystemName: "oa-trident-spoke-us-east-1-fsx" # Provided by crossplane-setup
+    region: "us-east-1" # Provided by crossplane-setup
+    svmName: "SVM2" # Provided by crossplane-setup
   peer:
-    fileSystemName: "" # Provided by crossplane-setup
-    region: "" # Provided by crossplane-setup
-    svmName: "" # Provided by crossplane-setup
+    fileSystemName: "oa-trident-hub-ca-central-1-fsx" # Provided by crossplane-setup
+    region: "ca-central-1" # Provided by crossplane-setup
+    svmName: "SVM1" # Provided by crossplane-setup
