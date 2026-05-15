@@ -428,8 +428,8 @@ fsxOntap:
     svmName: SVM2
 s3AppVault:
   enabled: true
-  bucketName: "" # Matches .Values.tridentProtect.appVault.name in values-global.yaml; provided by crossplane-setup
-  region: "us-west-1" # Provided by crossplane-setup
+  bucketName: "oa-trident-bucket" # Matches .Values.tridentProtect.appVault.name in values-global.yaml; provided by crossplane-setup
+  region: "ca-central-1" # Provided by crossplane-setup
 endpointWatcher:
   enabled: true
   local:

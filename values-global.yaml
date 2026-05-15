@@ -14,8 +14,8 @@ tridentProtect:
     enabled: true
     name: s3-appvault
     s3:
-      bucketName: "" # crossplane will create the s3 bucket if it doesn't exist
-      region: us-west-1
+      bucketName: "oa-trident-bucket" # crossplane will create the s3 bucket if it doesn't exist
+      region: ca-central-1
   applications:
     - name: boutique
       namespaces:
